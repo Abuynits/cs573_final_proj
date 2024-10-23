@@ -88,3 +88,53 @@ def plot_semester_compare_bp(df, curriculum_units):
     fig.suptitle("Curricular Units between 1st and 2nd Semester", fontsize=16)
 
     plt.show()
+
+def plot_grad_drop_compare_bp(df, curriculum_units, sem):
+    if '1' in sem:
+        filtered_units = [x for x in curriculum_units if '1' in x]
+    else:
+        filtered_units = [x for x in curriculum_units if '2' in x]
+    plot_df = df[list(filtered_units) + ['dropout']]
+    if '1' in sem:
+        clean_text = lambda x: re.sub(r'(Curricular units 1st sem |\(|\))', '', x)
+    else:
+        clean_text = lambda x: re.sub(r'(Curricular units 2nd sem |\(|\))', '', x)
+
+    plot_df = plot_df.rename(columns={x: clean_text(x) for x in filtered_units})
+    units = [clean_text(x) for x in filtered_units]
+    # plot_df.boxplot(vert=False)
+
+    fig, axes = plt.subplots(len(filtered_units), 1, figsize=(16, 12))
+    fig.subplots_adjust(hspace=0.5)
+
+    for i, ax in enumerate(axes):
+        dropout = plot_df[plot_df['dropout'] == "Dropout"][units[i]].to_numpy()
+        graduate = plot_df[plot_df['dropout'] == "Graduate"][units[i]].to_numpy()
+
+        ax.boxplot([dropout, graduate], labels=["Dropout", "Graduate"], vert=False)
+        if '1' in sem:
+            title = f'Curricular units 1st sem ({units[i]})'
+        else:
+            title = f'Curricular units 2nd sem ({units[i]})'
+        ax.set_title(f"{title}")
+        dropout_q1 = np.percentile(dropout, 0.25)
+        dropout_median = np.median(dropout)
+        dropout_q3 = np.percentile(dropout, 0.75)
+
+        graduate_q1 = np.percentile(graduate, 0.25)
+        graduate_median = np.median(graduate)
+        graduate_q3 = np.percentile(graduate, 0.75)
+
+        graduate_summary = f'Q1: {graduate_q1:.2f} | Median: {graduate_median:.2f} | Q3: {graduate_q3:.2f}'
+        dropout_summary = f'Q1: {dropout_q1:.2f} | Median: {dropout_median:.2f} | Q3: {dropout_q3:.2f}'
+        ax.text(dropout_median, 1 + 0.4, dropout_summary, verticalalignment='top', color='red', fontsize=9)
+        ax.text(graduate_median, 2 + 0.4, graduate_summary, verticalalignment='top', color='red', fontsize=9)
+
+    # Set a common title for the whole figure
+    if '1' in sem:
+        fig.suptitle("1st Semester Curricular Units by credits", fontsize=16)
+    else:
+        fig.suptitle("2nd Semester Curricular Units by credits", fontsize=16)
+
+    # Display the plots
+    plt.show()
