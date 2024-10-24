@@ -63,7 +63,8 @@ def jitter_plot(df):
     dropout_prev_qual += jitter
     dropout_prev_score += jitter
 
-    plt.scatter(dropout_prev_qual, dropout_prev_score, color='red', label='Dropout')
+    dropout_midway = int(dropout_prev_qual.shape[0] / 2)
+    plt.scatter(dropout_prev_qual[:dropout_midway], dropout_prev_score[:dropout_midway], color='red', label='Dropout',s=4)
 
     graduate_prev_qual = df[PREV_QUAL][df['dropout'] == 'Graduate']
     graduate_prev_score = df[ADMISSION_GRADE][df['dropout'] == 'Graduate']
@@ -71,7 +72,10 @@ def jitter_plot(df):
     graduate_prev_score += jitter
     graduate_prev_qual += jitter
 
-    plt.scatter(graduate_prev_qual, graduate_prev_score, color='blue', label='Graduate')
+    graduate_midway = int(3 * graduate_prev_qual.shape[0] / 4)
+    plt.scatter(graduate_prev_qual[:graduate_midway], graduate_prev_score[:graduate_midway], color='blue', label='Graduate',s=4)
+    plt.scatter(dropout_prev_qual[dropout_midway:], dropout_prev_score[dropout_midway:], color='red',s=4)
+    plt.scatter(graduate_prev_qual[graduate_midway:], graduate_prev_score[graduate_midway:], color='blue',s=4)
 
     plt.xlabel('Past Grades')
     plt.ylabel('Admission Score')
@@ -167,4 +171,35 @@ def plot_grad_drop_compare_bp(df, curriculum_units, sem):
         fig.suptitle("2nd Semester Curricular Units by credits", fontsize=16)
 
     # Display the plots
+    plt.show()
+
+
+def plot_line_graph(df, tgt_col):
+    tgt_df = df[[tgt_col, 'dropout']]
+    unique_inflation = tgt_df[tgt_col].unique()
+    inf_counts = {}
+    for inf in sorted(unique_inflation):
+        filtered_df = tgt_df[tgt_df[tgt_col] == inf]
+        dropout_count = filtered_df[filtered_df['dropout'] == 'Dropout'].shape[0]
+        graduate_count = filtered_df[filtered_df['dropout'] == 'Graduate'].shape[0]
+        inf_counts[inf] = {'dropout_count': dropout_count, 'graduate_count': graduate_count}
+
+    inf_rate = list(inf_counts.keys())
+    dropout_count = [inf_counts[key]['dropout_count'] for key in inf_counts.keys()]
+    graduate_count = [inf_counts[key]['graduate_count'] for key in inf_counts.keys()]
+    combined_count = [dropout_count[i] + graduate_count[i] for i in range(len(dropout_count))]
+    plt.figure(figsize=(8, 6))
+    plt.plot(inf_rate, dropout_count, marker='o', color='red', linestyle='-', linewidth=2, markersize=6,
+             label="Dropout Students")
+    plt.plot(inf_rate, graduate_count, marker='o', color='green', linestyle='-', linewidth=2, markersize=6,
+             label="Graduated Students")
+    plt.plot(inf_rate, combined_count, marker='o', color='blue', linestyle='-', linewidth=2, markersize=6,
+             label='Total Students')
+    plt.legend()
+    plt.title(f"Student Performance vs {tgt_col}")
+    plt.ylabel("Count of Students")
+    custom_xticks = list(set(inf_rate) - {0.5, 1.79, 1.74})
+    plt.xticks(custom_xticks)
+    plt.grid()
+    plt.xlabel("Inflation Rate")
     plt.show()
