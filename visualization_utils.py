@@ -1,6 +1,36 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import re
+
+def generate_general_stacked_bar_graph(df, variable_map, tgt_var):
+    fig, ax = plt.subplots(figsize=(10, 8))
+    categories = df[tgt_var].unique()
+    drop_counts = []
+    graduate_counts = []
+    for degree in categories:
+        count_entries = df[df[tgt_var] == degree]['dropout'].value_counts()
+        if "Dropout" in count_entries:
+            drop_counts.append(count_entries["Dropout"])
+        else:
+            drop_counts.append(0)
+        if "Graduate" in count_entries:
+            graduate_counts.append(count_entries["Graduate"])
+        else:
+            graduate_counts.append(0)
+
+    # categories = [variable_map[tgt_var][course] for course in variable_map[tgt_var]]
+    categories = [variable_map[tgt_var][c] for c in categories]
+    ax.set_xticks(range(len(categories)))
+    ax.set_xticklabels(categories, rotation=45, ha='right')
+    plt.bar(categories, drop_counts, color='r', label="dropout")
+    plt.bar(categories, graduate_counts, bottom=drop_counts, color='b', label="graduate")
+
+    ax.set_ylabel('Students')
+    ax.set_xlabel(tgt_var)
+    ax.set_title(f'Graduation vs Dropout Rates of Students by {tgt_var}')
+    ax.legend()
+    plt.show()
+
 def generate_stacked_bar_graph(df, variable_map):
     fig, ax = plt.subplots(figsize=(10, 8))
     categories = df['Course'].unique()
