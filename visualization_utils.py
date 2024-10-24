@@ -20,6 +20,7 @@ def generate_general_stacked_bar_graph(df, variable_map, tgt_var):
 
     # categories = [variable_map[tgt_var][course] for course in variable_map[tgt_var]]
     categories = [variable_map[tgt_var][c] for c in categories]
+    categories = [c.replace(";", '') for c in categories]
     ax.set_xticks(range(len(categories)))
     ax.set_xticklabels(categories, rotation=45, ha='right')
     plt.bar(categories, drop_counts, color='r', label="dropout")
