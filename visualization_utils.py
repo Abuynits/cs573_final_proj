@@ -22,13 +22,13 @@ def generate_general_stacked_bar_graph(df, variable_map, tgt_var):
     categories = [variable_map[tgt_var][c] for c in categories]
     categories = [c.replace(";", '') for c in categories]
     ax.set_xticks(range(len(categories)))
-    ax.set_xticklabels(categories, rotation=45, ha='right')
+    ax.set_xticklabels(categories, rotation=70, ha='right', fontsize=16)
     plt.bar(categories, drop_counts, color='r', label="dropout")
     plt.bar(categories, graduate_counts, bottom=drop_counts, color='b', label="graduate")
 
-    ax.set_ylabel('Students')
-    ax.set_xlabel(tgt_var)
-    ax.set_title(f'Graduation vs Dropout Rates of Students by {tgt_var}')
+    ax.set_ylabel('Students', fontsize=16)
+    ax.set_xlabel(tgt_var, fontsize=16)
+    ax.set_title(f'Graduation vs Dropout Rates of Students by {tgt_var}', fontsize=16)
     ax.legend()
     plt.show()
 
@@ -44,7 +44,7 @@ def generate_stacked_bar_graph(df, variable_map):
 
     categories = [variable_map["Course"][course] for course in variable_map["Course"]]
     ax.set_xticks(range(len(categories)))
-    ax.set_xticklabels(categories, rotation=45, ha='right')
+    ax.set_xticklabels(categories, rotation=90, ha='right')
     plt.bar(categories, drop_counts, color='r', label="dropout")
     plt.bar(categories, graduate_counts, bottom=drop_counts, color='b', label="graduate")
 
@@ -78,18 +78,18 @@ def jitter_plot(df):
     plt.scatter(dropout_prev_qual[dropout_midway:], dropout_prev_score[dropout_midway:], color='red',s=4)
     plt.scatter(graduate_prev_qual[graduate_midway:], graduate_prev_score[graduate_midway:], color='blue',s=4)
 
-    plt.xlabel('Past Grades')
-    plt.ylabel('Admission Score')
-    plt.legend()
-    plt.title('Comparison between Admission Scores and Grades vs Dropout')
+    plt.xlabel('Past Grades', fontsize=16)
+    plt.ylabel('Admission Score', fontsize=16)
+    plt.legend(fontsize=16)
+    plt.title('Comparison between Admission Scores and Grades vs Dropout',fontsize=16)
     plt.grid(True)
     plt.show()
 
 def pie_chart(y_col):
     unique, counts = np.unique(y_col, return_counts=True)
     plt.figure(figsize=(4, 4))
-    plt.pie(counts, labels=unique, autopct=lambda p: '{:.1f}% ({:.0f})'.format(p, (p / 100) * sum(counts)))
-    plt.title('Dropout Pie chart')
+    plt.pie(counts, labels=unique, autopct=lambda p: '{:.1f}% ({:.0f})'.format(p, (p / 100) * sum(counts)), colors = ['red', 'blue', 'green'])
+    plt.title('Dropout Proportion/Counts',fontsize=16)
     plt.axis('equal')
     plt.show()
 
@@ -102,7 +102,7 @@ def plot_semester_compare_bp(df, curriculum_units):
     plot_df = plot_df.rename(columns={x: clean_text(x) for x in curriculum_units})
     # plot_df.boxplot(vert=False)
 
-    fig, axes = plt.subplots(len(pairs), 1, figsize=(10, 12))
+    fig, axes = plt.subplots(len(pairs), 1, figsize=(8, 12))
     fig.subplots_adjust(hspace=0.5)
 
     for i, ax in enumerate(axes):
@@ -118,7 +118,7 @@ def plot_semester_compare_bp(df, curriculum_units):
 
             y_pos = j + 1
             all_summary = f'Q1: {q1:.2f} | Median: {median:.2f} | Q3: {q3:.2f}'
-            ax.text(median, y_pos + 0.4, all_summary, verticalalignment='top', color='red', fontsize=9)
+            ax.text(median - 0.5, y_pos + 0.4, all_summary, verticalalignment='top', color='red', fontsize=9)
 
     fig.suptitle("Curricular Units between 1st and 2nd Semester", fontsize=16)
 
@@ -139,37 +139,41 @@ def plot_grad_drop_compare_bp(df, curriculum_units, sem):
     units = [clean_text(x) for x in filtered_units]
     # plot_df.boxplot(vert=False)
 
-    fig, axes = plt.subplots(len(filtered_units), 1, figsize=(16, 12))
+    fig, axes = plt.subplots(len(filtered_units), 1, figsize=(8, 5))
     fig.subplots_adjust(hspace=0.5)
 
     for i, ax in enumerate(axes):
         dropout = plot_df[plot_df['dropout'] == "Dropout"][units[i]].to_numpy()
         graduate = plot_df[plot_df['dropout'] == "Graduate"][units[i]].to_numpy()
 
+        # ax.boxplot([dropout, graduate], labels=["Dropout", "Graduate"], vert=False)
         ax.boxplot([dropout, graduate], labels=["Dropout", "Graduate"], vert=False)
+
         if '1' in sem:
             title = f'Curricular units 1st sem ({units[i]})'
         else:
             title = f'Curricular units 2nd sem ({units[i]})'
         ax.set_title(f"{title}")
-        dropout_q1 = np.percentile(dropout, 0.25)
+        dropout_q1 = np.percentile(dropout, 25)
         dropout_median = np.median(dropout)
-        dropout_q3 = np.percentile(dropout, 0.75)
+        dropout_q3 = np.percentile(dropout, 75)
 
-        graduate_q1 = np.percentile(graduate, 0.25)
+        graduate_q1 = np.percentile(graduate, 25)
         graduate_median = np.median(graduate)
-        graduate_q3 = np.percentile(graduate, 0.75)
+        graduate_q3 = np.percentile(graduate, 75)
 
         graduate_summary = f'Q1: {graduate_q1:.2f} | Median: {graduate_median:.2f} | Q3: {graduate_q3:.2f}'
         dropout_summary = f'Q1: {dropout_q1:.2f} | Median: {dropout_median:.2f} | Q3: {dropout_q3:.2f}'
-        ax.text(dropout_median, 1 + 0.4, dropout_summary, verticalalignment='top', color='red', fontsize=9)
-        ax.text(graduate_median, 2 + 0.4, graduate_summary, verticalalignment='top', color='red', fontsize=9)
+        # ax.text(dropout_median - 1.25, 1 + 0.4, dropout_summary, verticalalignment='top', color='red', fontsize=9)
+        ax.text((graduate_q1 + graduate_q3)/2 - 2, 1 + 0.4, dropout_summary, verticalalignment='top', color='red', fontsize=9)
+        # ax.text(graduate_median - 1.25, 2 + 0.4, graduate_summary, verticalalignment='top', color='red', fontsize=9)
+        ax.text((graduate_q1 + graduate_q3)/2 - 2, 2 + 0.4, graduate_summary, verticalalignment='top', color='red', fontsize=9)
 
     # Set a common title for the whole figure
     if '1' in sem:
-        fig.suptitle("1st Semester Curricular Units by credits", fontsize=16)
+        fig.suptitle("1st Semester Curricular Units by Dropout", fontsize=16)
     else:
-        fig.suptitle("2nd Semester Curricular Units by credits", fontsize=16)
+        fig.suptitle("2nd Semester Curricular Units by Dropout", fontsize=16)
 
     # Display the plots
     plt.show()
@@ -199,7 +203,8 @@ def plot_line_graph(df, tgt_col):
     plt.legend()
     plt.title(f"Student Performance vs {tgt_col}")
     plt.ylabel("Count of Students")
-    custom_xticks = list(set(inf_rate) - {0.5, 1.79, 1.74})
+    custom_xticks = list(set(inf_rate) - {0.5, 1.79, 1.74, 12.7, 11.1})
+    print(custom_xticks)
     plt.xticks(custom_xticks)
     plt.grid()
     plt.xlabel("Inflation Rate")
