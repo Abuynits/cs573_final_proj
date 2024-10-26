@@ -3,7 +3,7 @@ import numpy as np
 import re
 
 def generate_general_stacked_bar_graph(df, variable_map, tgt_var):
-    fig, ax = plt.subplots(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=(10, 4))
     categories = df[tgt_var].unique()
     drop_counts = []
     graduate_counts = []
@@ -22,7 +22,7 @@ def generate_general_stacked_bar_graph(df, variable_map, tgt_var):
     categories = [variable_map[tgt_var][c] for c in categories]
     categories = [c.replace(";", '') for c in categories]
     ax.set_xticks(range(len(categories)))
-    ax.set_xticklabels(categories, rotation=70, ha='right', fontsize=16)
+    ax.set_xticklabels(categories, rotation=70, ha='right', fontsize=12)
     plt.bar(categories, drop_counts, color='r', label="dropout")
     plt.bar(categories, graduate_counts, bottom=drop_counts, color='b', label="graduate")
 
@@ -193,7 +193,7 @@ def plot_line_graph(df, tgt_col):
     dropout_count = [inf_counts[key]['dropout_count'] for key in inf_counts.keys()]
     graduate_count = [inf_counts[key]['graduate_count'] for key in inf_counts.keys()]
     combined_count = [dropout_count[i] + graduate_count[i] for i in range(len(dropout_count))]
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(8, 3))
     plt.plot(inf_rate, dropout_count, marker='o', color='red', linestyle='-', linewidth=2, markersize=6,
              label="Dropout Students")
     plt.plot(inf_rate, graduate_count, marker='o', color='green', linestyle='-', linewidth=2, markersize=6,
