@@ -54,7 +54,7 @@ def generate_stacked_bar_graph(df, variable_map):
     plt.show()
 
 def jitter_plot(df):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 4))
     PREV_QUAL = 'Previous qualification (grade)'
     ADMISSION_GRADE = 'Admission grade'
     # adding jitter to elements to prevent repeats:
